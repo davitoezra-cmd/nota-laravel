@@ -21,7 +21,7 @@ class BarangController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'kd_barang' => 'required|string|unique:barang,kd_barang',
+            'kd_barang' => 'required|string|unique:barangs,kd_barang',
             'nama_barang' => 'required|string',
             'quantity' => 'required|integer',
             'satuan' => 'required|string',
@@ -62,7 +62,7 @@ class BarangController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'kd_barang' => 'nullable|string|unique:barang,kd_barang,' . $id,
+            'kd_barang' => 'nullable|string|unique:barangs,kd_barang,' . $id,
             'nama_barang' => 'nullable|string',
             'quantity' => 'nullable|integer',
             'satuan' => 'nullable|string',

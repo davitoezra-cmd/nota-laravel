@@ -2,32 +2,31 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Laravel\Sanctum\HasApiTokens; // ← TAMBAHKAN INI
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable; 
 
     protected $fillable = [
         'name',
         'email',
         'password',
+        'role',
         'kd_apotek',
     ];
 
     protected $hidden = [
         'password',
-        
     ];
 
     public function notas()
     {
         return $this->hasMany(Nota::class, 'id_user', 'id');
     }
-    
 
     public function apotek()
     {

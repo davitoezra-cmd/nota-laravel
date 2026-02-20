@@ -41,14 +41,14 @@ class NotaController extends Controller
 
         //menyimpan detail nota
         DetailNota::create([
-            'no_nota' => $request->no_nota,
+            'nota_id' => $nota->id,
             'kd_barang' => $request->kd_barang,
             'quantity' => $request->quantity,
             'harga' => $request->harga,
             'jumlah' => $request->jumlah,
         ]);
 
-        return new NotaResource($nota->load('detailNota'), true, 'Nota Created');
+      return new NotaResource($nota->refresh()->load('detailNota'), true, 'Nota Created');
     }
 
     

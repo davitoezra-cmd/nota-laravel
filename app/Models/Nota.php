@@ -15,7 +15,7 @@ class Nota extends Model
 
     public function detailNota()
     {
-        return $this->hasMany(DetailNota::class, 'no_nota', 'no_nota');
+        return $this->hasMany(DetailNota::class, 'nota_id', 'id');
     }
 
     public function user()

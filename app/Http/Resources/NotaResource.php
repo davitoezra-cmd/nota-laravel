@@ -5,7 +5,7 @@ namespace App\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class ProductResource extends JsonResource
+class NotaResource extends JsonResource
 {
    public $status;
 
@@ -19,13 +19,15 @@ class ProductResource extends JsonResource
     $this->status = $status;
     $this->message = $message;
    }
-
-    public function toArray(Request $request): array
-    {
-        return [
+    
+   public function toArray(Request $request): array
+{
+    return [
         'success' => $this->status,
         'message' => $this->message,
-        'data' => $this->resource,
-     ];
-    }
+        'data'    => array_merge($this->resource->toArray(), [
+        'detail_nota' => $this->whenLoaded('detailNota'),
+        ]),
+    ];
+}
 }
