@@ -14,7 +14,10 @@ class BarangController extends Controller
     {
         $barangs = Barang::latest()->paginate();
 
-        return new NotaResource($barangs,true,'List Data Barang');
+        return NotaResource::collection($barangs)->additional([
+        'success' => true,
+        'message' => 'List Data Barang',
+    ]);
 
     }
  
@@ -44,7 +47,7 @@ class BarangController extends Controller
 
     public function show($id)
     {
-        $barang = Barang::find($id);
+        $barang = Barang::where('kd_barang', $id)->first();
 
         if (!$barang) {
             return response()->json(['message' => 'Barang not found'], 404);
@@ -55,14 +58,14 @@ class BarangController extends Controller
     
     public function update(Request $request, $id)
     {
-        $barang = Barang::find($id);
+       $barang = Barang::where('kd_barang', $id)->first();
 
         if (!$barang) {
             return response()->json(['message' => 'Barang not found'], 404);
         }
 
         $validator = Validator::make($request->all(), [
-            'kd_barang' => 'nullable|string|unique:barangs,kd_barang,' . $id,
+            'kd_barang' => 'nullable|string|unique:barangs,kd_barang,' . $barang->id,
             'nama_barang' => 'nullable|string',
             'quantity' => 'nullable|integer',
             'satuan' => 'nullable|string',
@@ -85,15 +88,27 @@ class BarangController extends Controller
     }
 
     public function destroy($id)
-    {
-        $barang = Barang::find($id);
+   
+{
+    
+    $barang = Barang::where('kd_barang', $id)->first();
 
-        if (!$barang) {
-        return response()->json(['message' => 'Barang not found'], 404);
+    
+    if (!$barang) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Barang tidak ditemukan!'
+        ], 404);
     }
 
-         $barang->delete();
+    
+    $barang->delete();
 
-        return new NotaResource(null, true, 'Data Barang Deleted');
-    }
+    
+    return response()->json([
+        'success' => true,
+        'message' => 'Data Barang Berhasil Dihapus',
+        'data'    => null
+    ], 200);
+}
 }

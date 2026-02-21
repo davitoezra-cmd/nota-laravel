@@ -13,55 +13,84 @@ class NotaController extends Controller
 {
     
     public function store(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'no_nota' => 'required|unique:notas,no_nota',
-            'tanggal' => 'required|date',
-            'nama_penerima' => 'required|string',
-            'total_jumlah' => 'required|integer',
-            'kd_barang' => 'required|string',
-            'quantity' => 'required|integer',
-            'harga' => 'required|integer',
-            'jumlah' => 'required|integer',
-        ]);
 
-        if ($validator->fails()) {
-            return response()->json($validator->errors(), 422);
-        }
+{
+    
+    $validator = Validator::make($request->all(), [
+        'no_nota'       => 'required|unique:notas,no_nota',
+        'tanggal'       => 'required|date',
+        'nama_penerima' => 'required|string',
+        'total_jumlah'  => 'required|integer',
+        'kd_barang'     => 'required|string|exists:barangs,kd_barang',
+        'quantity'      => 'required|integer',
+        'harga'         => 'required|integer',
+        'jumlah'        => 'required|integer',
+    ]);
 
-        //menyimpan nota
-        $nota = Nota::create([
-            'no_nota' => $request->no_nota,
-            'tanggal' => $request->tanggal,
-            'nama_penerima' => $request->nama_penerima,
-            'total_jumlah' => $request->total_jumlah,
-            'kd_apotek' => $request->user()->kd_apotek,
-            'id_user' => $request->user()->id,
-        ]);
-
-        //menyimpan detail nota
-        DetailNota::create([
-            'nota_id' => $nota->id,
-            'kd_barang' => $request->kd_barang,
-            'quantity' => $request->quantity,
-            'harga' => $request->harga,
-            'jumlah' => $request->jumlah,
-        ]);
-
-      return new NotaResource($nota->refresh()->load('detailNota'), true, 'Nota Created');
+    if ($validator->fails()) {
+        return response()->json($validator->errors(), 422);
     }
 
+   
+    $nota = Nota::create([
+        'no_nota'       => $request->no_nota,
+        'tanggal'       => $request->tanggal,
+        'nama_penerima' => $request->nama_penerima,
+        'total_jumlah'  => $request->total_jumlah,
+        'kd_apotek'     => $request->user()->kd_apotek,
+        'id_user'       => $request->user()->id,
+    ]);
+
     
-    public function show($id)
+    DetailNota::create([
+        'nota_id'   => $nota->id,
+        'kd_barang' => $request->kd_barang,
+        'quantity'  => $request->quantity,
+        'harga'     => $request->harga,
+        'jumlah'    => $request->jumlah,
+    ]);
+
+    return new NotaResource($nota->refresh()->load('detailNota'), true, 'Nota Berhasil Dibuat');
+}
+
+   public function show($id)
     {
+        
         $nota = Nota::with('detailNota')
                     ->where('no_nota', $id)
                     ->first();
 
         if (!$nota) {
-            return response()->json(['message' => 'Nota not found'], 404);
+            return response()->json([
+                'success' => false,
+                'message' => 'Nota tidak ditemukan!'
+            ], 404);
         }
 
-        return new NotaResource($nota, true, 'Detail Nota');
+        return new NotaResource($nota, true, 'Detail Nota Berhasil Diambil');
     }
+
+    public function destroy($id)
+{
+   
+    $nota = Nota::where('no_nota', $id)->first();
+
+    if (!$nota) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Nota tidak ditemukan!'
+        ], 404);
+    }
+
+
+    $nota->detailNota()->delete(); 
+
+    $nota->delete();
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Nota ' . $id . ' dan rinciannya berhasil dihapus.',
+        'data'    => null
+    ], 200);
+}
 }
